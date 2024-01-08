@@ -11,7 +11,7 @@ function CodeEditor(
   {
     width=400,
     code,
-    setCode
+    setCode=()=>{}
   }
 ) {
 
@@ -19,10 +19,6 @@ function CodeEditor(
     [
       {
         name: "main.js",
-        data:"// some comment"
-      },
-      {
-        name: "main1.js",
         data:"// some comment"
       }
     ]
@@ -65,14 +61,14 @@ function CodeEditor(
             let tempN=0
             tabs.forEach((t)=>{
               const fileName=t.name
-              const match=fileName.match(/^untitled(?:-(\d+))?\.js$/)
+              const match=fileName.match(/^main(?:-(\d+))?\.js$/)
               if(match && match[1]!==undefined){
                 const n = parseInt(match[1])
                 if(tempN<n)tempN=n;
               }
             })
             tempN+=1
-            const tempName= tempN!=0?`untitled-${tempN}.js`:"untitled.js"
+            const tempName= tempN!=0?`main-${tempN}.js`:"main.js"
             setTabs(prev=>[{name: tempName,data:"// some comment"},...prev])
             setActiveTabName(tempName)
           }}
@@ -102,6 +98,24 @@ function CodeEditor(
                   <button
                     className={style.downloadBtn}
                     title={`Download ${name}`}
+                    onClick={async ()=>{
+                      const tab=tabs.find(t=>t.name==name)
+                      if(tab){
+                        const blob= new Blob([tab.data],{type:"application/javascript"})
+                        const url=URL.createObjectURL(blob)
+                        const a = document.createElement("a")
+                        a.href=url
+                        a.download=name
+                        const downloadHandler=()=>{
+                          setTimeout(()=>{
+                            URL.revokeObjectURL(url)
+                            a.removeEventListener("click", downloadHandler)
+                          },1000)
+                        }
+                        a.addEventListener("click",downloadHandler)
+                        a.click()
+                      }
+                    }}
                   >
                     <MdDownload/>
                   </button>
