@@ -4,6 +4,9 @@ import Editor from '@monaco-editor/react';
 import { IoLogoJavascript } from "react-icons/io5";
 import { MdFullscreen } from "react-icons/md";
 import { IoCodeDownloadSharp } from "react-icons/io5";
+import { MdOutlineNoteAdd } from "react-icons/md";
+import { IoCloseSharp } from "react-icons/io5";
+import { MdDownload } from "react-icons/md";
 function CodeEditor(
   {
     width=400,
@@ -18,29 +21,13 @@ function CodeEditor(
         name: "main.js",
         data:"// some comment"
       },
-      // {
-      //   name: "hi.js",
-      //   data:"// some comment"
-      // },
-      // {
-      //   name: "main1.js",
-      //   data:"// some comment"
-      // },
-      // {
-      //   name: "hi1.js",
-      //   data:"// some comment"
-      // },
-      // {
-      //   name: "main2.js",
-      //   data:"// some comment"
-      // },
-      // {
-      //   name: "hi2.js",
-      //   data:"// some comment"
-      // }
+      {
+        name: "main1.js",
+        data:"// some comment"
+      }
     ]
   )
-  const [activeTabName,setActiveTabName]=useState(tabs[0].name)
+  const [activeTabName,setActiveTabName]=useState(tabs[0]?.name)
   useEffect(()=>{
     if(activeTabName){
       setTabs(prev=>{
@@ -53,8 +40,12 @@ function CodeEditor(
 
   useEffect(()=>{
     const i=tabs.findIndex(t=>t.name==activeTabName)
-    setCode(tabs[i].data)
+    if(i!=-1){
+      setCode(tabs[i].data)
+    }
   },[activeTabName])
+  
+
   return (
     <div
       className={style.container}
@@ -67,21 +58,74 @@ function CodeEditor(
       <div
         className={style.top}
       >
+        <button
+          className={style.addBtn}
+          title="Create New File"
+          onClick={()=>{
+            let tempN=0
+            tabs.forEach((t)=>{
+              const fileName=t.name
+              const match=fileName.match(/^untitled(?:-(\d+))?\.js$/)
+              if(match && match[1]!==undefined){
+                const n = parseInt(match[1])
+                if(tempN<n)tempN=n;
+              }
+            })
+            tempN+=1
+            const tempName= tempN!=0?`untitled-${tempN}.js`:"untitled.js"
+            setTabs(prev=>[{name: tempName,data:"// some comment"},...prev])
+            setActiveTabName(tempName)
+          }}
+        >
+          <MdOutlineNoteAdd/>
+        </button>
         <div
         className={style.tabPanel}
         >
-          
-
           {
             tabs.map(({name},index)=>(
               <div key={name}
                 title={name}
-                onClick={()=>setActiveTabName(name)}
+                onClick={(e)=>{
+                  setActiveTabName(name)
+                }}
                 className={style.tab +" "+ (activeTabName==name? style.activeTab : "")}>
                 <IoLogoJavascript
                   color='yellow'
                 />
-                <span>{name}</span>
+                <span
+                  className={style.tabName}
+                >{name}</span>
+                <div
+                  className={style.tabBtnContainer}
+                >
+                  <button
+                    className={style.downloadBtn}
+                    title={`Download ${name}`}
+                  >
+                    <MdDownload/>
+                  </button>
+                  <button
+                    title="Close"
+                    onClick={(e)=>{
+                      e.stopPropagation()
+                      if(activeTabName==name){
+                        const temp=tabs.filter(i=>i.name!=name)
+                        setTabs([...temp])
+                        if(temp.length>0){
+                          setActiveTabName(temp[0].name)
+                        }
+                      }else{
+                        setTabs(prev=>(
+                          prev.filter(i=>i.name!=name)
+                        ))
+                      }
+                    }}
+                    className={style.closeBtn}
+                  >
+                    <IoCloseSharp/>
+                  </button>
+                </div>
               </div>
             ))
           }
@@ -104,12 +148,21 @@ function CodeEditor(
       <div
         className={style.editorBox}
       >
-        <Editor
-        defaultLanguage="javascript" 
-        theme='vs-dark' 
-        value={code}
-        onChange={(value)=>setCode(value)}
-      />
+        {tabs.length>0
+         ?
+          <Editor
+          defaultLanguage="javascript" 
+          theme='vs-dark' 
+          value={code}
+          onChange={(value)=>setCode(value)}
+          />
+          :
+          <p
+            style={{textAlign:"center", color:"white"}}
+          >
+            File Empty. Create New File.
+          </p>
+        }
       </div>
     </div>
   )
