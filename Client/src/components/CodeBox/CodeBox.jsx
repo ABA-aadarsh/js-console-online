@@ -17,7 +17,7 @@ function CodeBox() {
           }
         ]
     )
-    const [activeTabName,setActiveTabName]=useState(tabs[0]?.name)
+    const [activeTabName,setActiveTabName]=useState(tabs?.length>0?tabs[0]?.name:"")
     const [output,setOutput]=useState(null)
     const containerRef=useRef(null)
     var x, w

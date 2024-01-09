@@ -60,6 +60,7 @@ function CodeEditor(
           title="Create New File"
           onClick={()=>{
             let tempN=0
+            console.log(tabs)
             tabs.forEach((t)=>{
               const fileName=t.name
               const match=fileName.match(/^main(?:-(\d+))?\.js$/)
@@ -70,7 +71,7 @@ function CodeEditor(
             })
             tempN+=1
             const tempName= tempN!=0?`main-${tempN}.js`:"main.js"
-            setTabs(prev=>[{name: tempName,data:"// some comment"},...prev])
+            setTabs((prev=[])=>([{name: tempName,data:"// some comment"},...prev]))
             setActiveTabName(tempName)
           }}
         >
@@ -168,6 +169,7 @@ function CodeEditor(
           <button
             title="Download all"
             onClick={async ()=>{
+              if(tabs.length==0)return;
               const promise=tabs.map(tab=>{
                 const blob= new Blob([tab.data],{type:"application/javascript"})
                 return {
@@ -215,7 +217,7 @@ function CodeEditor(
           />
           :
           <p
-            style={{textAlign:"center", color:"white"}}
+            style={{textAlign:"center", color:"white",fontFamily:"sans-serif"}}
           >
             File Empty. Create New File.
           </p>
