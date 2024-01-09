@@ -7,6 +7,17 @@ import { PiDotsThreeVerticalBold } from "react-icons/pi";
 function CodeBox() {
     const [editorWidth,setEditorWidth]=useState(window.innerWidth/2)
     const [code,setCode]=useState("// some comment")
+    const [fileDragover,setFileDragover]=useState(false)
+    const [outputLoading,setOutputLoading]=useState(false)
+    const [tabs,setTabs]=useState(
+        [
+          {
+            name: "main.js",
+            data:"// some comment"
+          }
+        ]
+    )
+    const [activeTabName,setActiveTabName]=useState(tabs[0]?.name)
     const [output,setOutput]=useState(null)
     const containerRef=useRef(null)
     var x, w
@@ -27,6 +38,8 @@ function CodeBox() {
         if(code==''){
             return
         }
+        console.log(code)
+        setOutputLoading(true)
         const url="http://localhost:8080/code/run"
         const res=await fetch(url,    
             {
@@ -41,10 +54,7 @@ function CodeBox() {
                 )
             }
         )
-        if(res.status==402){
-            const output=await res.json()
-            console.log(output)
-        }else if(res.status==405){
+        if(res.status==405){
             // error occured
             const output=await res.json()
             setOutput(output)
@@ -56,21 +66,27 @@ function CodeBox() {
             output.data=">> "+output.data.replaceAll("\n","\n>> ")
             setOutput(output)
         }
-
-        
+        setOutputLoading(false)
     }
   return (
     <div
         className={style.container}
         ref={containerRef}
+        onDragOver={()=>{
+            setFileDragover(true)
+        }}
+        onDragExit={()=>setFileDragover(false)}
     >
         <CodeEditor
             width={editorWidth}
             code={code}
             setCode={setCode}
+            tabs={tabs}
+            setTabs={setTabs}
+            activeTabName={activeTabName}
+            setActiveTabName={setActiveTabName}
         />
         <div className={style.resizer}
-            // draggable={true}
             onMouseDown={(e)=>{
                 x=e.clientX
                 w=editorWidth
@@ -79,11 +95,6 @@ function CodeBox() {
                 containerRef.current.addEventListener("mousemove",mouseMoveHandler)
                 containerRef.current.addEventListener("mouseup",mouseUpHandler)
             }}
-            // onMouseUp={()=>{
-            //     console.log("it happened 2")
-            //     containerRef.current.removeEventListener("mousemove",mouseMoveHandler);
-            //     containerRef.current.removeEventListener("mouseup",mouseUpHandler);
-            // }}
         >
             <span
                 style={{
@@ -96,7 +107,37 @@ function CodeBox() {
         <OutputPanel
             output={output}
             executeCode={executeCode}
+            loading={outputLoading}
         />
+        
+        {
+            fileDragover &&
+
+            <div
+                className={style.dropBox}
+                onDrop={ async (e)=>{
+                    e.preventDefault()
+                    setFileDragover(false)
+                    const file=e.dataTransfer.files[0]
+                    // console.log(file.name)
+                    const fileData=await file.text()
+                    setTabs(prev=>(
+                        [{
+                            name: file.name,
+                            data: fileData
+                        },...prev]
+                    ))
+                    setActiveTabName(file.name)
+                }}
+                onDragExit={()=>setFileDragover(false)}
+            >   
+                <div
+                    className={style.centerBox}
+                >
+                    <h2>Drop File Here</h2>
+                </div>
+            </div>
+        }
     </div>
   )
 }

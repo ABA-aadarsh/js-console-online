@@ -42,14 +42,15 @@ exports.runCode = async (req, res) => {
                     data: stderr+"\n"+error
                 });
             }
-        } else {
-            throw new Error(`Request failed with status ${fetchRes.status}`);
+        }else{
+            throw new Error("Error while executing code. See for syntax error.")
         }
     } catch (error) {
         console.log("Error during fetch:", error);
-        res.status(402).json({
-            success: false,
-            error: error.message || "Unknown error occurred",
+        res.status(405).json({
+            title: "Syntax Error",
+            status: false,
+            data: error.message
         });
     }
 };

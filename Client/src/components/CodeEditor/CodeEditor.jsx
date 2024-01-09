@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import style from "./CodeEditor.module.css"
 import Editor from '@monaco-editor/react';
 import { IoLogoJavascript } from "react-icons/io5";
@@ -7,29 +7,29 @@ import { IoCodeDownloadSharp } from "react-icons/io5";
 import { MdOutlineNoteAdd } from "react-icons/md";
 import { IoCloseSharp } from "react-icons/io5";
 import { MdDownload } from "react-icons/md";
+import { MdFullscreenExit } from "react-icons/md";
+import JSZip from "jszip"
 function CodeEditor(
   {
     width=400,
     code,
-    setCode=()=>{}
+    setCode=()=>{},
+    tabs=[],
+    setTabs=()=>{},
+    activeTabName,
+    setActiveTabName=()=>{}
   }
 ) {
-
-  const [tabs,setTabs]=useState(
-    [
-      {
-        name: "main.js",
-        data:"// some comment"
-      }
-    ]
-  )
-  const [activeTabName,setActiveTabName]=useState(tabs[0]?.name)
+  const containerRef = useRef(null)
+  const [isFullscreen,setIsFullscreen]=useState(false)
   useEffect(()=>{
     if(activeTabName){
       setTabs(prev=>{
         const i= prev.findIndex(i=>i.name==activeTabName)
-        prev[i].data=code
-        return prev
+        if(i!=-1){
+          prev[i].data=code
+          return prev
+        }
       })
     }
   },[code])
@@ -45,6 +45,7 @@ function CodeEditor(
   return (
     <div
       className={style.container}
+      ref={containerRef}
       style={
         {
           width: `${width}px`
@@ -147,12 +148,54 @@ function CodeEditor(
 
         <div className={style.actionBtn}>
           <button
-            title="Fullscreen"
+            title={isFullscreen?"Exit Fullscreen":"Fullscreen"}
+            onClick={async ()=>{
+              if(isFullscreen==false){
+                await containerRef.current.requestFullscreen()
+                setIsFullscreen(true)
+              }else{
+                await document.exitFullscreen()
+                setIsFullscreen(false)
+              }
+            }}
           >
-            <MdFullscreen/>
+            {
+              isFullscreen ?
+              <MdFullscreenExit/>:
+              <MdFullscreen/>
+            }
           </button>
           <button
             title="Download all"
+            onClick={async ()=>{
+              const promise=tabs.map(tab=>{
+                const blob= new Blob([tab.data],{type:"application/javascript"})
+                return {
+                  name: tab.name,
+                  blobData: blob
+                }
+              })
+
+              const blobArray= await Promise.all(promise)
+
+              const zip= new JSZip()
+              blobArray.forEach(({name,blobData})=>{
+                zip.file(name,blobData)
+              })
+              const zipFile=await zip.generateAsync({type: "blob"})
+              const zipFileUrl= URL.createObjectURL(zipFile)
+              const a = document.createElement("a")
+              a.download="Codes.zip"
+              a.href=zipFileUrl
+              const downloadHandler=()=>{
+                setTimeout(()=>{
+                  URL.revokeObjectURL(zipFileUrl)
+                  a.removeEventListener("click", downloadHandler)
+                },1000)
+              }
+              a.addEventListener("click",downloadHandler)
+              a.click()
+            }}
           >
             <IoCodeDownloadSharp/>
           </button>

@@ -4,7 +4,8 @@ import style from "./OutputPanel.module.css"
 function OutputPanel(
     {
         output,
-        executeCode=()=>{}
+        executeCode=()=>{},
+        loading
     }
 ) {
   return (
@@ -26,14 +27,26 @@ function OutputPanel(
         <div
             className={style.outputBox}
         >
-            <h3
-                className={style.title}
-            >{output?.title}</h3>
-            <pre>
+            {
+                loading?
                 <p
-                    className={style.data}
-                >{output?.data}</p>
-            </pre>
+                    style={{
+                        marginTop:"20px",
+                        paddingLeft:"10px"
+                    }}
+                >Loading...</p>
+                :
+                <>
+                <h3
+                    className={style.title}
+                >{output?.title}</h3>
+                <pre>
+                    <p
+                        className={style.data}
+                    >{output?.data}</p>
+                </pre>
+                </>
+            }
         </div>
     </div>
   )
