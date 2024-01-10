@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
 import style from "./OutputPanel.module.css"
+import { IoPlayOutline } from "react-icons/io5";
 
 function OutputPanel(
     {
@@ -16,13 +17,27 @@ function OutputPanel(
             <div
                 className={style.tab}
             >
-                <span>Output</span>
+                <span
+                    style={
+                        {
+                            display:"inline-block",
+                            height:"100%",
+                            borderBottom:"1px solid white",
+                            paddingBottom:"5px"
+                        }
+                    }
+                >Output</span>
             </div>
 
             <button
                 onClick={executeCode}
-                style={{marginLeft:"20px"}}
-            >Run</button>
+                className={style.runBtn}
+            >
+                <IoPlayOutline
+                    style={{paddingTop:"2px", fontSize:"18px"}}
+                />
+                <span>Run</span>
+            </button>
         </div>
         <div
             className={style.outputBox}
@@ -39,11 +54,16 @@ function OutputPanel(
                 <>
                 <h3
                     className={style.title}
+                    style={
+                        {
+                            color: output?.status?"inherit":"red"
+                        }
+                    }
                 >{output?.title}</h3>
                 <pre>
                     <p
                         className={style.data}
-                    >{output?.data}</p>
+                    >{output?.data || "Note: Click Run Button Above to see ouput."}</p>
                 </pre>
                 </>
             }

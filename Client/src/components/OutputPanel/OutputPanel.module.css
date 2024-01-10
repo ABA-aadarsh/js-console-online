@@ -6,67 +6,24 @@
     color: white;
 }
 .panel{
+    padding-top: 10px;
     height: 30px;
-    background-color: #212529;
+    /* background-color: #212529; */
+    background-color: #111315;
     display: flex;
-    align-items: end;
+    position: relative;
+    align-items: center;
 }
 .tab{
     position: relative;
     background-color: #111315;
-    height: 90%;
     width: 130px;
-    border-radius: 5px 5px 0px 0px;
-    margin-left: 5px;
     display: flex;
     align-items: center;
     padding-left: 8px;
     color: white;
     font-size: 14px;
 }
-.tab::after{
-    position: absolute;
-    content: "";
-    background: #111315;
-    width: 10px;
-    height: 10px;
-    z-index: 1;
-    left: -10px;
-    bottom:0px;
-}
-.tab::before{
-    position: absolute;
-    content: "";
-    background: #111315;
-    width: 10px;
-    height: 10px;
-    z-index: 1;
-    right: -10px; 
-    bottom:0px;   
-}
-.tab span::before{
-    position: absolute;
-    content: "";
-    background-color: #212529;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    z-index: 2;
-    right: -20px;
-    bottom:0px;
-}
-.tab span::after{
-    position: absolute;
-    content: "";
-    background-color: #212529;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    z-index: 2;
-    left: -20px;
-    bottom:0px;
-}
-
 .outputBox{
     padding-left: 10px;
 }
@@ -77,4 +34,18 @@
 }
 .data{
     line-height: 1.2rem;
+}
+.runBtn{
+    position: absolute;
+    right: 5px;
+    border: none;
+    display: flex;
+    align-items: center;
+    height: 100%;
+    padding: 3px 5px;
+    color: white;
+    background-color: #128203;
+    gap: 2px;
+    border-radius: 5px;
+    cursor: pointer;
 }
