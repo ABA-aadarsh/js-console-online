@@ -17,9 +17,6 @@ app.use(expressSanitizer());
 
 app.use(express.json())
 
-app.get("/",(req,res)=>{
-    res.send("Yohoho")
-})
 
 app.use("/code",codeCompilerRouter.route)
 

@@ -4,7 +4,6 @@ const {minify}=require("uglify-js")
 exports.runCode = async (req, res) => {
     const apiURL=process.env.apiURL
     const apiToken=process.env.apiToken
-    console.log(apiURL, apiToken)
     try {
         const { code, lang } = req.body;
         let sanitizedCode=minify(code).code
