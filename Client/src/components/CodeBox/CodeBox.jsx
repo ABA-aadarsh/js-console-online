@@ -40,7 +40,7 @@ function CodeBox() {
         }
         console.log(code)
         setOutputLoading(true)
-        const url="http://localhost:8080/code/run"
+        const url="/code/run"
         const res=await fetch(url,    
             {
                 method:"POST",
